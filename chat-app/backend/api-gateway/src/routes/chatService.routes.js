@@ -3,7 +3,7 @@ import axios from "axios";
 
 const router = express.Router();
 
-const CHAT_SERVICE = "http://localhost:5003/api/chat";
+const CHAT_SERVICE = "https://chat-service-beaz.onrender.com/api/chat";
 
 // 📤 Send Message
 router.post("/send", async (req, res) => {
