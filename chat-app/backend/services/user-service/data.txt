@@ -1,0 +1,9 @@
+User Login
+   ↓
+Socket Connect
+   ↓
+User Service → addUser
+   ↓
+Frontend → GET /online
+   ↓
+Show online users

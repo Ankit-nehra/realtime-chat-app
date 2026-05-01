@@ -1,0 +1,67 @@
+src/
+├── components/
+│   ├── TopBar.jsx
+│   ├── OnlineGroup.jsx
+│   ├── UserItem.jsx
+│   ├── UserList.jsx
+│   ├── ChatScreen.jsx
+│   ├── MessageBubble.jsx
+│   └── MessageInput.jsx
+│
+├── pages/
+│   └── Home.jsx
+│
+├── App.jsx
+└── main.jsx
+
+ui kuxh iss prka bnana hai for mobile device users - at top there is a serach box to seach user and logout button aside it ,after that there is an online user group when status show total online users , when click on that a group chat can be done , and below it show all users who register , but on top must be all online user , on click on each user a (1-1) chat can possible, those who are online and in chat box can see message instantly (turant ) else if user online but not in chat section then show message popup with notify symbol on that user (like whatsapp) , else if user may me offline then it show message popup and notify after login , and can see chat while click on sender section in chatbox section (like whatsapp).
+
+now give me ui design
+
+-----------------------------------
+| 🔍 Search User     🚪 Logout    |
+-----------------------------------
+| 🌐 Online Group (5 online)      |
+-----------------------------------
+| 🟢 Aman        💬 2            |
+| 🟢 Priya                        |
+| 🟢 Rahul       💬 1            |
+-----------------------------------
+| ⚫ Mohit                         |
+| ⚫ Neha                          |
+| ⚫ Arjun                         |
+-----------------------------------
+
+-----------------------------------
+| ← Aman          🟢              |
+-----------------------------------
+| Hello bro                     |
+|                Hi 👋          |
+| Kaise ho?                    |
+-----------------------------------
+| Type message...       ➤       |
+-----------------------------------
+
+Jab koi user message send karta hai, to system sabse pehle WebSocket/Presence Service se check karta hai ki receiver “online hai ya offline”; agar user offline hai to message directly Chat Service me store ho jata hai, unread count increase hota hai aur Notification Service usko push notification bhej deti hai, jo user ko login ke baad bhi dikh jati hai; agar user online hai to next step me check hota hai ki kya wo currently usi chat screen (activeChatWith) me hai jahan se message aaya hai, agar haan to message instantly WebSocket ke through chat UI me render ho jata hai bina kisi notification ke aur unread count update nahi hota, lekin agar user online hote hue bhi kisi aur chat ya home screen par hai to message real-time deliver hota hai saath hi notification + unread badge increment ho jata hai, aur jab user us chat ko open karta hai to unread count reset ho jata hai aur messages seen mark ho jate hain; is pure flow ko simple diagram me aise samjho:
+Sender → Chat Service → Presence Check → {OFFLINE → DB + Push Notification + Unread++} | {ONLINE → Active Chat? → YES: Direct Render | NO: Notification + Unread++} → Receiver UI Update.
+
+phele user login krta hai , uska status "online" show krta hai , phire vo kisi user ke chat section ko open krta hai to 'activeChatWith ="jiski chat open ki "' or home pr he hai kisi user ki chat open nhi ki to "activeChatWith=NULL", 
+
+matlab phele ek case lete hai jisme user login hua :- matlab ab vo online hai ,suppose abhi ye home section mai hai kisi user ki chat open nhi ki , agar koi dusra active user uss ko message kre to uske pass notification jaayegi + countOfNotfication on userChat section increace hogi like - 1,2,... . agar user ne same user jo message kr rha hai usi ki chat open ki to use koi notification nhi milegi na he uske countOfN
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+maine abhi tak jo kuch bhi kiya hai complete summary do 

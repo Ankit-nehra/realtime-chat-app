@@ -1,0 +1,126 @@
+realtime-service / sockets/index.js :- // src/sockets/index.js
+
+import { Server } from "socket.io";
+import { addUser, removeUser, getOnlineUsers } from "../utils/socketMap.js";
+
+export const initSocket = (server) => {
+  const io = new Server(server, {
+    cors: {
+      origin: "*",
+    },
+  });
+
+  io.on("connection", (socket) => {
+    console.log("User connected:", socket.id);
+
+    // 🔥 user join
+    socket.on("join", (userId) => {
+      addUser(userId, socket.id);
+
+      // broadcast updated online users
+      io.emit("onlineUsers", getOnlineUsers());
+    });
+
+    // 🔥 send message (Phase 1 basic)
+    socket.on("sendMessage", ({ to, message }) => {
+      const receiverSocketId = [...onlineUsers.entries()]
+        .find(([userId]) => userId === to)?.[1];
+
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("receiveMessage", message);
+      }
+    });
+
+    // 🔥 disconnect
+    socket.on("disconnect", () => {
+      removeUser(socket.id);
+      io.emit("onlineUsers", getOnlineUsers());
+      console.log("User disconnected:", socket.id);
+    });
+  });
+};
+
+realtime-service / utils/ socketMap.js - // src/utils/socketMap.js
+
+export const onlineUsers = new Map(); 
+// userId → socketId
+
+export const addUser = (userId, socketId) => {
+  onlineUsers.set(userId, socketId);
+};
+
+export const removeUser = (socketId) => {
+  for (let [userId, sId] of onlineUsers.entries()) {
+    if (sId === socketId) {
+      onlineUsers.delete(userId);
+      break;
+    }
+  }
+};
+
+export const getOnlineUsers = () => {
+  return Array.from(onlineUsers.keys());
+};
+
+server.js :- import express from "express";
+import http from "http";
+import cors from "cors";
+import { Server } from "socket.io";
+
+const app = express();
+app.use(cors());
+
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: { origin: "*" },
+});
+
+const onlineUsers = new Map();
+
+app.get("/health", (req, res) => {
+  res.json({ status: "Realtime service running" });
+});
+
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+
+  // JOIN
+  socket.on("join", (userId) => {
+    if (!userId) return;
+
+    onlineUsers.set(userId, socket.id);
+
+    io.emit("onlineUsers", Array.from(onlineUsers.keys()));
+  });
+
+  // SEND MESSAGE
+  socket.on("sendMessage", (data) => {
+    const receiverSocketId = [...onlineUsers.entries()]
+      .find(([uid]) => uid === data.receiverId)?.[1];
+
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("receiveMessage", data);
+    }
+
+    // sender echo
+    socket.emit("receiveMessage", data);
+  });
+
+  // DISCONNECT
+  socket.on("disconnect", () => {
+    for (let [userId, socketId] of onlineUsers.entries()) {
+      if (socketId === socket.id) {
+        onlineUsers.delete(userId);
+        break;
+      }
+    }
+
+    io.emit("onlineUsers", Array.from(onlineUsers.keys()));
+  });
+});
+
+server.listen(5004, () => {
+  console.log("Realtime Service running on 5004");
+});
+
