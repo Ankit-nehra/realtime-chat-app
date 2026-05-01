@@ -3,7 +3,7 @@ import axios from "axios";
 
 const router = express.Router();
 
-const USER_SERVICE_URL = "http://localhost:5002/api/users";
+const USER_SERVICE_URL = "https://user-service-tz4x.onrender.com/api/users";
 
 router.get("/online", async (req, res) => {
   try {
