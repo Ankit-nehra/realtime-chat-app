@@ -25,7 +25,7 @@ function App() {
   }, [isAuthenticated]);
 
   return (
-    <Router>
+    <>
       <Toaster position="top-right" />
 
       <Routes>
@@ -47,7 +47,7 @@ function App() {
           element={isAuthenticated ? <ChatPage /> : <Navigate to="/login" />}
         />
       </Routes>
-    </Router>
+    </>
   );
 }
 
