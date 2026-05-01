@@ -3,7 +3,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api/users",
+  baseURL: "https://api-gateway-service-thia.onrender.com/api/users",
 });
 
 export const getOnlineUsers = () => API.get("/online");
