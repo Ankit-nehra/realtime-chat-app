@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const AUTH_SERVICE_URL = "http://localhost:5001/api/auth";
+const AUTH_SERVICE_URL = "https://auth-service-fhv0.onrender.com/api/auth";
 
 export const registerProxy = async (req, res) => {
   try {
