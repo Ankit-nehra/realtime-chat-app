@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api/chat",
+  baseURL: "https://api-gateway-service-thia.onrender.com/api/chat",
 });
 
 export const sendMessage = (data) => API.post("/send", data);
