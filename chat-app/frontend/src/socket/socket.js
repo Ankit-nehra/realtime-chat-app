@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-export const socket = io("http://localhost:5004", {
+export const socket = io("https://realtime-service-zd3u.onrender.com", {
   autoConnect: false,
   transports: ["websocket"],
 });
