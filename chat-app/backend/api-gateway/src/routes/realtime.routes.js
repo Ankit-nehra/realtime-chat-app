@@ -3,7 +3,7 @@ import axios from "axios";
 
 const router = express.Router();
 
-const REALTIME_SERVICE = "http://localhost:5004";
+const REALTIME_SERVICE = "https://realtime-service-zd3u.onrender.com";
 
 router.get("/health", async (req, res) => {
   try {
