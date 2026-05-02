@@ -6,10 +6,16 @@ import toast from "react-hot-toast";
 
 export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false); // ✅ added only
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (loading) return;
+
+    setLoading(true);
+
     try {
       const res = await login(form);
 
@@ -21,13 +27,15 @@ export default function LoginPage() {
       window.location.href = "/home";
     } catch (err) {
       toast.error(err.response?.data?.message || "Login failed ❌");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white px-4 relative overflow-hidden">
 
-      {/* Glow effects (same style as Welcome) */}
+      {/* Glow effects */}
       <div className="absolute w-72 h-72 bg-blue-600 rounded-full blur-3xl opacity-30 top-10 left-10"></div>
       <div className="absolute w-72 h-72 bg-purple-600 rounded-full blur-3xl opacity-30 bottom-10 right-10"></div>
 
@@ -72,8 +80,16 @@ export default function LoginPage() {
             }
           />
 
-          <button className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 transition font-semibold shadow-lg shadow-blue-600/30">
-            Login
+          {/* ✅ ONLY CHANGE HERE */}
+          <button
+            disabled={loading}
+            className={`w-full py-3 rounded-xl font-semibold transition shadow-lg shadow-blue-600/30 ${
+              loading
+                ? "bg-gray-600 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-500"
+            }`}
+          >
+            {loading ? "Processing..." : "Login"}
           </button>
         </form>
 
@@ -87,6 +103,7 @@ export default function LoginPage() {
             Register
           </Link>
         </p>
+
       </div>
     </div>
   );
