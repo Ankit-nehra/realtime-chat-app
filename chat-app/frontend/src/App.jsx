@@ -13,9 +13,10 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import HomePage from "./pages/Home";
 import ChatPage from "./pages/ChatPage";
+import Welcome from "./pages/Welcome";
 
 function App() {
-  const isAuthenticated = localStorage.getItem("token");
+  const isAuthenticated = !!localStorage.getItem("token");
 
   // ✅ CONNECT ONLY ON LOGIN
   useEffect(() => {
@@ -29,22 +30,50 @@ function App() {
       <Toaster position="top-right" />
 
       <Routes>
+
+        {/* ✅ PUBLIC WELCOME PAGE */}
         <Route
           path="/"
-          element={<Navigate to={isAuthenticated ? "/home" : "/login"} />}
+          element={
+           isAuthenticated ? <Navigate to="/home" /> : <Welcome />
+           }
         />
 
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        {/* ✅ AUTH PAGES */}
+        <Route
+          path="/login"
+          element={
+            isAuthenticated ? <Navigate to="/home" /> : <LoginPage />
+          }
+        />
 
+        <Route
+          path="/register"
+          element={
+            isAuthenticated ? <Navigate to="/home" /> : <RegisterPage />
+          }
+        />
+
+        {/* ✅ PROTECTED HOME */}
         <Route
           path="/home"
-          element={isAuthenticated ? <HomePage /> : <Navigate to="/login" />}
+          element={
+            isAuthenticated ? <HomePage /> : <Navigate to="/login" />
+          }
         />
 
+        {/* ✅ PROTECTED CHAT */}
         <Route
           path="/chat/:id"
-          element={isAuthenticated ? <ChatPage /> : <Navigate to="/login" />}
+          element={
+            isAuthenticated ? <ChatPage /> : <Navigate to="/login" />
+          }
+        />
+
+        {/* ✅ FALLBACK ROUTE */}
+        <Route
+          path="*"
+          element={<Navigate to="/" />}
         />
       </Routes>
     </>
