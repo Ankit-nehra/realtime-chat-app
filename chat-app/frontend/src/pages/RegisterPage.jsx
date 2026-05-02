@@ -80,7 +80,7 @@ export default function RegisterPage() {
             }
           />
 
-          <button className="w-full py-3 rounded-xl bg-purple-600 hover:bg-green-500 transition font-semibold shadow-lg shadow-green-600/30">
+          <button className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 transition font-semibold shadow-lg shadow-purplw-600/30">
             Register
           </button>
         </form>
