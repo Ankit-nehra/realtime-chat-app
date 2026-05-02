@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://api-gateway-service-thia.onrender.com/api/realtime",
+  baseURL: `${import.meta.env.VITE_API_URL}/api/realtime',
 });
 
 export const checkRealtimeStatus = () =>
