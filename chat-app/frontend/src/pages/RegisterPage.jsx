@@ -11,16 +11,33 @@ export default function RegisterPage() {
     password: "",
   });
 
+  const [loading, setLoading] = useState(false); // ✅ added
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // ✅ validation
+    if (!form.name || !form.email || !form.password) {
+      toast.error("All fields are required");
+      return;
+    }
+
+    if (loading) return;
+
+    setLoading(true);
+
     try {
       const res = await register(form);
+
       toast.success("Account created successfully 🚀");
-      console.log(res.data);
+
+      navigate("/login"); // ✅ redirect added
+
     } catch (err) {
       toast.error("Registration failed ❌");
+    } finally {
+      setLoading(false); // ✅ stays in processing until done
     }
   };
 
@@ -55,6 +72,7 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
 
           <input
+            value={form.name} // ✅ controlled
             placeholder="Name"
             className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
             onChange={(e) =>
@@ -63,6 +81,7 @@ export default function RegisterPage() {
           />
 
           <input
+            value={form.email} // ✅ controlled
             type="email"
             placeholder="Email"
             className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -72,6 +91,7 @@ export default function RegisterPage() {
           />
 
           <input
+            value={form.password} // ✅ controlled
             type="password"
             placeholder="Password"
             className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -80,8 +100,12 @@ export default function RegisterPage() {
             }
           />
 
-          <button className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 transition font-semibold shadow-lg shadow-purplw-600/30">
-            Register
+          {/* ✅ updated button only */}
+          <button
+            disabled={loading}
+            className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 transition font-semibold shadow-lg shadow-purple-600/30 disabled:bg-gray-600 disabled:cursor-not-allowed"
+          >
+            {loading ? "Processing..." : "Register"}
           </button>
         </form>
 
