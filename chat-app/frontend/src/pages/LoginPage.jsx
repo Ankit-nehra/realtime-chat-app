@@ -1,6 +1,6 @@
 // src/pages/LoginPage.jsx
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { login } from "../api/auth.api";
 import toast from "react-hot-toast";
 
@@ -13,50 +13,81 @@ export default function LoginPage() {
     try {
       const res = await login(form);
 
-    
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("userId", res.data.user._id);
-    navigate("/home", { replace: true });
+
       toast.success("Login successful 🎉");
 
-      
+      window.location.href = "/home";
     } catch (err) {
       toast.error(err.response?.data?.message || "Login failed ❌");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-100 to-blue-200">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-2xl shadow-lg w-80 space-y-5"
-      >
-        <h2 className="text-2xl font-bold text-center text-gray-700">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white px-4 relative overflow-hidden">
+
+      {/* Glow effects (same style as Welcome) */}
+      <div className="absolute w-72 h-72 bg-blue-600 rounded-full blur-3xl opacity-30 top-10 left-10"></div>
+      <div className="absolute w-72 h-72 bg-purple-600 rounded-full blur-3xl opacity-30 bottom-10 right-10"></div>
+
+      {/* Card */}
+      <div className="relative w-full max-w-md bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8">
+
+        {/* Back button */}
+        <button
+          onClick={() => navigate("/")}
+          className="text-xs text-gray-400 hover:text-white mb-4 transition"
+        >
+          ← Back to Home
+        </button>
+
+        {/* Title */}
+        <h2 className="text-3xl font-bold text-center">
           Welcome Back 👋
         </h2>
 
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          onChange={(e) =>
-            setForm({ ...form, email: e.target.value })
-          }
-        />
+        <p className="text-center text-gray-400 text-sm mt-2">
+          Login to continue chatting
+        </p>
 
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          onChange={(e) =>
-            setForm({ ...form, password: e.target.value })
-          }
-        />
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="mt-8 space-y-4">
 
-        <button className="w-full bg-blue-500 hover:bg-blue-600 transition text-white p-3 rounded-lg font-semibold">
-          Login
-        </button>
-      </form>
+          <input
+            type="email"
+            placeholder="Email"
+            className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={(e) =>
+              setForm({ ...form, email: e.target.value })
+            }
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={(e) =>
+              setForm({ ...form, password: e.target.value })
+            }
+          />
+
+          <button className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 transition font-semibold shadow-lg shadow-blue-600/30">
+            Login
+          </button>
+        </form>
+
+        {/* Register link */}
+        <p className="text-center text-sm text-gray-400 mt-6">
+          Don’t have an account?{" "}
+          <Link
+            to="/register"
+            className="text-purple-400 hover:text-purple-300 font-medium"
+          >
+            Register
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }
