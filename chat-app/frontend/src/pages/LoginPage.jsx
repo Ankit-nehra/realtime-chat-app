@@ -21,7 +21,7 @@ export default function LoginPage() {
 
       
     } catch (err) {
-      toast.error("Invalid credentials ❌");
+      toast.error(err.response?.data?.message || "Login failed ❌");
     }
   };
 
