@@ -21,7 +21,7 @@ export default function LoginPage() {
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("userId", res.data.user._id);
-
+      localStorage.setItem("name", res.data.user.name); 
       toast.success("Login successful 🎉");
 
       window.location.href = "/home";
