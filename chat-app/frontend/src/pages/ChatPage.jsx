@@ -30,7 +30,6 @@ export default function ChatPage() {
   useEffect(() => {
     socket.emit("join", userId);
 
-    // ✅ NEW
     socket.emit("activeChat", {
       userId,
       chatUserId: receiverId,
@@ -40,7 +39,6 @@ export default function ChatPage() {
       setMessages((prev) => {
         const exists = prev.some((m) => m._id === msg._id);
         if (exists) return prev;
-
         return [...prev, msg];
       });
     };
@@ -48,9 +46,7 @@ export default function ChatPage() {
     socket.on("receiveMessage", handleMessage);
 
     return () => {
-      // ✅ NEW
       socket.emit("leaveChat", { userId });
-
       socket.off("receiveMessage", handleMessage);
     };
   }, [userId, receiverId]);
@@ -103,61 +99,84 @@ export default function ChatPage() {
   }, []);
 
   return (
-    <div className="h-screen flex flex-col bg-gray-100">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white relative overflow-hidden">
 
-      <div className="p-3 bg-white shadow flex gap-3">
-        <button onClick={() => navigate("/home")}>
+      {/* Background glow */}
+      <div className="absolute w-96 h-96 bg-blue-600 rounded-full blur-3xl opacity-20 top-10 left-10"></div>
+      <div className="absolute w-96 h-96 bg-purple-600 rounded-full blur-3xl opacity-20 bottom-10 right-10"></div>
+
+      {/* Top bar */}
+      <div className="relative z-10 flex items-center justify-between px-4 py-3 bg-white/5 backdrop-blur-xl border-b border-white/10">
+
+        <button
+          onClick={() => navigate("/home")}
+          className="text-sm text-gray-300 hover:text-white transition"
+        >
           ← Back
         </button>
 
-        <p>Chat with {receiverId}</p>
+        <div className="text-center">
+          <p className="text-sm font-semibold">User {receiverId}</p>
+          <p className="text-xs text-gray-400">Active chat</p>
+        </div>
+
+        <div className="w-10" />
       </div>
 
+      {/* Messages */}
       <div
         ref={containerRef}
-        className="flex-1 overflow-y-auto p-3 space-y-2"
+        className="relative z-10 flex-1 overflow-y-auto px-4 py-5 space-y-3"
       >
         {messages.map((msg, i) => (
           <div
             key={msg._id || i}
-            className={`p-2 rounded max-w-[70%] ${
-              msg.senderId === userId
-                ? "bg-blue-500 text-white ml-auto"
-                : "bg-white"
+            className={`flex ${
+              msg.senderId === userId ? "justify-end" : "justify-start"
             }`}
           >
-            {msg.message}
+            <div
+              className={`px-4 py-2 rounded-2xl max-w-[70%] text-sm shadow-md break-words ${
+                msg.senderId === userId
+                  ? "bg-blue-600 text-white rounded-br-sm"
+                  : "bg-white/10 text-white border border-white/10 rounded-bl-sm"
+              }`}
+            >
+              {msg.message}
+            </div>
           </div>
         ))}
 
         <div ref={messagesEndRef}></div>
       </div>
 
+      {/* Scroll button */}
       {showScrollBtn && (
         <button
           onClick={scrollToBottom}
-          className="fixed bottom-20 right-5 bg-green-500 text-white p-3 rounded-full shadow-lg"
+          className="fixed bottom-24 right-5 bg-green-500 hover:bg-green-400 text-white p-3 rounded-full shadow-lg transition"
         >
           ↓
         </button>
       )}
 
-      <div className="p-3 bg-white flex gap-2">
+      {/* Input box */}
+      <div className="relative z-10 p-3 bg-white/5 backdrop-blur-xl border-t border-white/10 flex gap-2">
+
         <input
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          className="flex-1 border p-2 rounded"
-          placeholder="Type message..."
+          className="flex-1 p-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Type a message..."
         />
 
         <button
           onClick={sendMsg}
-          className="bg-green-500 text-white px-4 rounded"
+          className="px-5 py-3 bg-green-600 hover:bg-green-500 transition rounded-xl font-semibold shadow-lg shadow-green-600/30"
         >
           Send
         </button>
       </div>
-
     </div>
   );
 }
