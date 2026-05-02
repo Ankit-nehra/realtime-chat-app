@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { socket } from "../socket/socket";
 import { useParams, useNavigate } from "react-router-dom";
 import { sendMessage, getMessages } from "../api/chat.api";
-
+const name = localStorage.getItem("name");
 export default function ChatPage() {
   const { id: receiverId } = useParams();
   const navigate = useNavigate();
@@ -11,7 +11,6 @@ export default function ChatPage() {
 
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const [onlineUsers, setOnlineUsers] = useState([]);
 
   const messagesEndRef = useRef(null);
   const containerRef = useRef(null);
@@ -44,17 +43,11 @@ export default function ChatPage() {
       });
     };
 
-    const handleOnlineUsers = (users) => {
-      setOnlineUsers(users);
-    };
-
     socket.on("receiveMessage", handleMessage);
-    socket.on("onlineUsers", handleOnlineUsers);
 
     return () => {
       socket.emit("leaveChat", { userId });
       socket.off("receiveMessage", handleMessage);
-      socket.off("onlineUsers", handleOnlineUsers);
     };
   }, [userId, receiverId]);
 
@@ -105,21 +98,10 @@ export default function ChatPage() {
     return () => el.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // 🔥 FIND RECEIVER INFO
-  const receiver = onlineUsers.find(
-    (u) => (u.userId || u) === receiverId
-  );
-
-  const receiverName =
-    typeof receiver === "object" ? receiver.name : null;
-
-  const isOnline = onlineUsers.some(
-    (u) => (u.userId || u) === receiverId
-  );
-
   return (
     <div className="h-screen flex flex-col bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white relative overflow-hidden">
 
+      {/* Background glow */}
       <div className="absolute w-96 h-96 bg-blue-600 rounded-full blur-3xl opacity-20 top-10 left-10"></div>
       <div className="absolute w-96 h-96 bg-purple-600 rounded-full blur-3xl opacity-20 bottom-10 right-10"></div>
 
@@ -134,13 +116,10 @@ export default function ChatPage() {
         </button>
 
         <div className="text-center">
-          <p className="text-sm font-semibold">
-            {receiverName ? receiverName : `User ${receiverId}`}
-          </p>
-
-          <p className={`text-xs font-semibold ${isOnline ? "text-green-400" : "text-gray-400"}`}>
-            {isOnline ? "🟢 Online" : "⚫ Offline"}
-          </p>
+  <p className="text-sm font-semibold">
+  Chat Room
+</p>
+          <p className="text-xs text-gray-400">Active chat</p>
         </div>
 
         <div className="w-10" />
@@ -193,12 +172,14 @@ export default function ChatPage() {
           placeholder="Type a message..."
         />
 
-        <button
-          onClick={sendMsg}
-          className="px-5 py-3 bg-green-600 hover:bg-green-500 transition rounded-xl font-semibold shadow-lg shadow-green-600/30"
-        >
-          Send
-        </button>
+<button
+  onClick={sendMsg}
+  className="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 
+             text-white font-medium transition-all duration-200 
+             shadow-md hover:shadow-blue-500/30"
+>
+  Send
+</button>
       </div>
     </div>
   );
