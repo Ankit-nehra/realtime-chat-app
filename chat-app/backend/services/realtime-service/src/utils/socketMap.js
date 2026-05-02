@@ -1,36 +1,40 @@
 export const onlineUsers = new Map();
-// userId → socketId
+// userId → { socketId, joinTime, name }
 
-// ✅ NEW
 export const activeChats = new Map();
-// userId → chatUserId
 
-export const addUser = (userId, socketId) => {
+export const addUser = (userId, socketId, name = null) => {
   console.log("➕ [MAP ADD] userId:", userId, "socketId:", socketId);
-  onlineUsers.set(userId, socketId);
+
+  onlineUsers.set(userId, {
+    socketId,
+    joinTime: new Date().toISOString(),
+    name,
+  });
 };
 
 export const removeUser = (socketId) => {
   console.log("➖ [MAP REMOVE] socketId:", socketId);
 
-  for (let [userId, sId] of onlineUsers.entries()) {
-    if (sId === socketId) {
+  for (let [userId, data] of onlineUsers.entries()) {
+    if (data.socketId === socketId) {
       console.log("🗑️ [MAP DELETE] userId:", userId);
       onlineUsers.delete(userId);
-
-      // ✅ cleanup active chat
       activeChats.delete(userId);
-
       break;
     }
   }
 };
 
 export const getOnlineUsers = () => {
-  return Array.from(onlineUsers.keys());
+  return Array.from(onlineUsers.entries()).map(([userId, data]) => ({
+    userId,
+    socketId: data.socketId,
+    joinTime: data.joinTime,
+    name: data.name,
+  }));
 };
 
-// ✅ NEW FUNCTIONS
 export const setActiveChat = (userId, chatUserId) => {
   activeChats.set(userId, chatUserId);
 };
