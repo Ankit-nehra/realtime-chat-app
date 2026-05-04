@@ -1,5 +1,6 @@
+
 import express from "express";
-import { fetchOnlineUsers } from "../controllers/user.controller.js";
+import { fetchAllUsers } from "../controllers/user.controller.js";
 
 const router = express.Router();
 
@@ -9,6 +10,7 @@ router.use((req, res, next) => {
   next();
 });
 
-router.get("/online", fetchOnlineUsers);
+// ✅ GET ALL USERS
+router.get("/", fetchAllUsers);
 
 export default router;
