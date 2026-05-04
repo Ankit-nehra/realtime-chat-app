@@ -95,7 +95,7 @@ export default function HomePage() {
       {/* HEADER */}
       <div className="flex justify-between items-center px-6 py-4 border-b border-white/10 bg-white/5 backdrop-blur-xl">
         <div>
-          <h2 className="text-xl font-bold">👥 All Users</h2>
+          <h2 className="text-xl font-bold">Lets's do realTime chats</h2>
           <p className="text-xs text-gray-400">Click to start chat</p>
         </div>
 
