@@ -1,27 +1,41 @@
+
 import { useEffect, useState } from "react";
 import { socket } from "../socket/socket";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import axios from "axios";
 
 export default function HomePage() {
+  const [allUsers, setAllUsers] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [unreadCounts, setUnreadCounts] = useState({});
+  const [search, setSearch] = useState(""); // ✅ NEW
 
   const userId = String(localStorage.getItem("userId"));
   const navigate = useNavigate();
 
+  // ✅ Fetch ALL USERS
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/users");
+        setAllUsers(res.data);
+      } catch (err) {
+        console.log("Error fetching users:", err.message);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  // ✅ SOCKET (ONLINE USERS + NOTIFICATIONS)
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    if (!token) {
-      window.location.href = "/login";
-      return;
-    }
-
-    if (!userId) return;
+    if (!token || !userId) return;
 
     socket.connect();
-    socket.emit("join", userId, localStorage.getItem("name")); // ✅ SAFE EXTENSION
+    socket.emit("join", userId, localStorage.getItem("name"));
 
     const handleOnlineUsers = (users) => {
       setOnlineUsers(users);
@@ -54,87 +68,105 @@ export default function HomePage() {
     window.location.href = "/login";
   };
 
+  // ✅ Check if user is online
+  const isOnline = (id) => {
+    return onlineUsers.some((u) => u.userId === id);
+  };
+
+  // ✅ Sort users (online first)
+  const sortedUsers = [...allUsers]
+    .filter((u) => u._id !== userId)
+    .sort((a, b) => {
+      const aOnline = isOnline(a._id);
+      const bOnline = isOnline(b._id);
+
+      if (aOnline === bOnline) return 0;
+      return aOnline ? -1 : 1;
+    });
+
+  // ✅ NEW: Filter by search
+  const filteredUsers = sortedUsers.filter((user) =>
+    user.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white flex flex-col relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white flex flex-col">
 
-      <div className="absolute w-96 h-96 bg-blue-600 rounded-full blur-3xl opacity-20 top-10 left-10"></div>
-      <div className="absolute w-96 h-96 bg-purple-600 rounded-full blur-3xl opacity-20 bottom-10 right-10"></div>
-
-      <div className="relative z-10 flex justify-between items-center px-6 py-4 border-b border-white/10 bg-white/5 backdrop-blur-xl">
+      {/* HEADER */}
+      <div className="flex justify-between items-center px-6 py-4 border-b border-white/10 bg-white/5 backdrop-blur-xl">
         <div>
-          <h2 className="text-xl font-bold">🟢 Online Users</h2>
-          <p className="text-xs text-gray-400">
-            Click a user to start chatting instantly
-          </p>
+          <h2 className="text-xl font-bold">👥 All Users</h2>
+          <p className="text-xs text-gray-400">Click to start chat</p>
         </div>
 
         <button
           onClick={logout}
-          className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 transition shadow-lg shadow-red-600/30 text-sm"
+          className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500"
         >
           Logout
         </button>
       </div>
 
-      <div className="relative z-10 flex-1 overflow-y-auto px-6 py-6 space-y-3">
+      {/* 🔍 SEARCH BAR */}
+      <div className="px-6 pt-4">
+        <input
+          type="text"
+          placeholder="Search users..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:outline-none"
+        />
+      </div>
 
-        {onlineUsers.length === 0 && (
+      {/* USERS LIST */}
+      <div className="flex-1 overflow-y-auto px-6 py-6 space-y-3">
+
+        {filteredUsers.length === 0 && (
           <div className="text-center mt-20 text-gray-400">
-            <p className="text-lg">No users online</p>
-            <p className="text-sm mt-1">Waiting for people to join…</p>
+            <p>No users found</p>
           </div>
         )}
 
-        {onlineUsers
-          .filter((u) => (typeof u === "string" ? u !== userId : u.userId !== userId))
-          .map((user, index) => {
-            const id = typeof user === "string" ? user : user.userId;
-            const name = typeof user === "string" ? null : user.name;
-            const joinTime = typeof user === "string" ? null : user.joinTime;
+        {filteredUsers.map((user) => (
+          <div
+            key={user._id}
+            onClick={() => openChat(user._id)}
+            className="flex justify-between items-center p-4 rounded-xl bg-white/5 hover:bg-white/10 cursor-pointer transition"
+          >
+            {/* LEFT */}
+            <div>
+              <p className="font-medium">{user.name}</p>
+              <p className="text-xs text-gray-400">{user.email}</p>
+            </div>
 
-            return (
-              <div
-                key={id || index}
-                onClick={() => openChat(id)}
-                className="group cursor-pointer flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl hover:bg-white/10 transition shadow-lg"
-              >
-                <div className="flex items-center gap-3">
+            {/* RIGHT */}
+            <div className="flex items-center gap-3">
+
+              {/* ONLINE STATUS */}
+              <div className="flex items-center gap-2">
+                {isOnline(user._id) ? (
                   <span className="relative flex h-3 w-3">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
                   </span>
+                ) : (
+                  <span className="h-3 w-3 rounded-full bg-gray-500"></span>
+                )}
 
-                  <div>
-                    <p className="font-medium text-white">
-                      {name ? name : `User ${id}`}
-                    </p>
-
-                    <p className="text-xs text-gray-400">
-                      {joinTime
-                        ? `Joined at ${new Date(joinTime).toLocaleTimeString()}`
-                        : "Online now"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  {unreadCounts[id] > 0 && (
-                    <span className="bg-red-500 text-white px-2 py-0.5 rounded-full text-xs shadow">
-                      {unreadCounts[id]}
-                    </span>
-                  )}
-
-                  <span className="text-xs text-gray-400 group-hover:text-white transition">
-                    Open →
-                  </span>
-                </div>
+                <span className="text-xs text-gray-400">
+                  {isOnline(user._id) ? "Online" : "Offline"}
+                </span>
               </div>
-            );
-          })}
-      </div>
 
-      <div className="relative z-10 text-center text-xs text-gray-500 py-3 border-t border-white/10 bg-white/5 backdrop-blur-xl">
-        Real-time chat powered by Socket.io ⚡
+              {/* UNREAD COUNT */}
+              {unreadCounts[user._id] > 0 && (
+                <span className="bg-red-500 px-2 py-1 text-xs rounded-full">
+                  {unreadCounts[user._id]}
+                </span>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
