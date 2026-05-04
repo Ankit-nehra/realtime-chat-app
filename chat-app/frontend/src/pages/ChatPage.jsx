@@ -87,7 +87,7 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-black text-white">
+    <div className="h-[100dvh] flex flex-col bg-black text-white">
 
       {/* HEADER */}
       <div className="p-4 border-b border-gray-700 flex justify-between items-center">
@@ -97,9 +97,7 @@ export default function ChatPage() {
         </button>
 
         <div className="text-center">
-          <h3 className="font-bold">
-            {receiver?.name || "Loading..."}
-          </h3>
+
 
           <p className="text-xs text-gray-400">
             {isOnline ? "🟢 Online" : "⚫ Offline"}
