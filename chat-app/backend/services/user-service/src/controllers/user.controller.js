@@ -1,12 +1,17 @@
-import { getOnlineUsers } from "../services/presence.service.js";
 
-export const fetchOnlineUsers = (req, res) => {
-  console.log("📥 [USER CONTROLLER] fetchOnlineUsers HIT");
+import { getAllUsers } from "../services/user.service.js";
 
-  const users = getOnlineUsers();
+export const fetchAllUsers = async (req, res) => {
+  try {
+    console.log("📥 [USER CONTROLLER] fetchAllUsers HIT");
 
-  console.log("🟢 [USER CONTROLLER] Online users count:", users.length);
-  console.log("➡️ Online users:", users);
+    const users = await getAllUsers();
 
-  res.json({ onlineUsers: users });
+    console.log("📦 Users count:", users.length);
+
+    res.json(users);
+  } catch (err) {
+    console.log("❌ Error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
 };
