@@ -19,7 +19,7 @@ export default function ChatPage() {
   // 📥 GET CHAT HISTORY
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/chat/messages", {
+      .get("https://api-gateway-service-thia.onrender.com/api/chat/messages", {
         params: { user1: userId, user2: receiverId },
       })
       .then((res) => setMessages(res.data));
@@ -28,7 +28,7 @@ export default function ChatPage() {
   // 👤 GET RECEIVER INFO
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/users")
+      .get("https://api-gateway-service-thia.onrender.com/api/users")
       .then((res) => {
         const user = res.data.find((u) => u._id === receiverId);
         setReceiver(user);
