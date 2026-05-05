@@ -75,7 +75,7 @@ export default function ChatPage() {
     };
 
     const res = await axios.post(
-      "http://localhost:5000/api/chat/send",
+      "https://api-gateway-service-thia.onrender.com/api/chat/send",
       msgData
     );
 
