@@ -14,19 +14,19 @@ export default function HomePage() {
   const userId = String(localStorage.getItem("userId"));
   const navigate = useNavigate();
 
-  // // ✅ Fetch ALL USERS
-  // useEffect(() => {
-  //   const fetchUsers = async () => {
-  //     try {
-  //       const res = await axios.get("https://api-gateway-service-thia.onrender.com/api/users");
-  //       setAllUsers(res.data);
-  //     } catch (err) {
-  //       console.log("Error fetching users:", err.message);
-  //     }
-  //   };
+  // ✅ Fetch ALL USERS
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await axios.get("https://api-gateway-service-thia.onrender.com/api/users");
+        setAllUsers(res.data);
+      } catch (err) {
+        console.log("Error fetching users:", err.message);
+      }
+    };
 
-  //   fetchUsers();
-  // }, []);
+    fetchUsers();
+  }, []);
 
   // ✅ SOCKET (ONLINE USERS + NOTIFICATIONS)
   useEffect(() => {
