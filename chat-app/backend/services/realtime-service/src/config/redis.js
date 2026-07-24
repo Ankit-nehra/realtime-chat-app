@@ -60,13 +60,23 @@ subClient.on("error", (err) => {
 
 export const connectRedis = async () => {
   try {
-    await pubClient.connect();
-    await subClient.connect();
 
-    console.log("🚀 Redis Connected Successfully");
+    await Promise.all([
+      pubClient.connect(),
+      subClient.connect(),
+    ]);
+
+    console.log(
+      "🚀 Redis Connected Successfully"
+    );
 
   } catch (error) {
-    console.error("❌ Redis Connection Failed:", error.message);
+
+    console.error(
+      "❌ Redis Connection Failed:",
+      error.message
+    );
+
     process.exit(1);
   }
 };
