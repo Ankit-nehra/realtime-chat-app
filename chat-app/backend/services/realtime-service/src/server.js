@@ -3,10 +3,6 @@ import http from "http";
 import cors from "cors";
 import dotenv from "dotenv";
 
-import { initSocket } from "./sockets/index.js";
-import { connectRedis } from "./config/redis.js";
-
-
 dotenv.config();
 
 
@@ -31,26 +27,34 @@ const startServer = async () => {
 
   try {
 
+    // Dynamic imports after dotenv load
+    const { connectRedis } = await import("./config/redis.js");
+    const { initSocket } = await import("./sockets/index.js");
+
+
     await connectRedis();
 
 
     initSocket(server);
 
 
-    app.get("/health", (req,res)=>{
+
+    app.get("/health", (req, res) => {
 
       res.json({
-        status:"Realtime service running",
-        redis:"connected"
+        status: "Realtime service running",
+        redis: "connected"
       });
 
     });
 
 
+
     const PORT = process.env.PORT || 5004;
 
 
-    server.listen(PORT,()=>{
+
+    server.listen(PORT, () => {
 
       console.log(
         `🚀 Realtime Service running on ${PORT}`
@@ -59,9 +63,10 @@ const startServer = async () => {
     });
 
 
-  } catch(error){
 
-    console.log(
+  } catch(error) {
+
+    console.error(
       "❌ Server Startup Error:",
       error.message
     );
