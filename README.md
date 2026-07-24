@@ -2,7 +2,7 @@
 
 
 <p align="center">
-  <img src="screenshots/banner.png" alt="Real Time Chat Application Banner" width="900"/>
+  <img src="./screenshorts\banner.jpg" alt="Real Time Chat Application Banner" width="900"/>
 </p>
 
 
