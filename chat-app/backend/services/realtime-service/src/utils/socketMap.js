@@ -1,48 +1,240 @@
-export const onlineUsers = new Map();
-// userId → { socketId, joinTime, name }
+import { redisClient } from "../config/redis.js";
 
-export const activeChats = new Map();
 
-export const addUser = (userId, socketId, name = null) => {
-  console.log("➕ [MAP ADD] userId:", userId, "socketId:", socketId);
+// Redis Keys
 
-  onlineUsers.set(userId, {
+const ONLINE_USERS_KEY = "online_users";
+const ACTIVE_CHATS_KEY = "active_chats";
+
+
+
+// ==============================
+// ADD ONLINE USER
+// ==============================
+
+export const addUser = async (
+  userId,
+  socketId,
+  name = null
+) => {
+
+
+  console.log(
+    "➕ [REDIS ADD USER]",
+    userId
+  );
+
+
+  const userData = {
+
     socketId,
-    joinTime: new Date().toISOString(),
+
+    joinTime:
+      new Date().toISOString(),
+
     name,
-  });
-};
 
-export const removeUser = (socketId) => {
-  console.log("➖ [MAP REMOVE] socketId:", socketId);
+  };
 
-  for (let [userId, data] of onlineUsers.entries()) {
-    if (data.socketId === socketId) {
-      console.log("🗑️ [MAP DELETE] userId:", userId);
-      onlineUsers.delete(userId);
-      activeChats.delete(userId);
-      break;
-    }
-  }
-};
 
-export const getOnlineUsers = () => {
-  return Array.from(onlineUsers.entries()).map(([userId, data]) => ({
+
+  await redisClient.hSet(
+
+    ONLINE_USERS_KEY,
+
     userId,
-    socketId: data.socketId,
-    joinTime: data.joinTime,
-    name: data.name,
-  }));
+
+    JSON.stringify(userData)
+
+  );
+
+
 };
 
-export const setActiveChat = (userId, chatUserId) => {
-  activeChats.set(userId, chatUserId);
+
+
+
+// ==============================
+// REMOVE USER
+// ==============================
+
+export const removeUser = async (
+  socketId
+) => {
+
+
+  console.log(
+    "➖ [REDIS REMOVE USER]",
+    socketId
+  );
+
+
+
+  const users =
+    await redisClient.hGetAll(
+      ONLINE_USERS_KEY
+    );
+
+
+
+  for(
+    const userId in users
+  ){
+
+
+    const user =
+      JSON.parse(
+        users[userId]
+      );
+
+
+
+    if(
+      user.socketId === socketId
+    ){
+
+
+      await redisClient.hDel(
+        ONLINE_USERS_KEY,
+        userId
+      );
+
+
+      await removeActiveChat(
+        userId
+      );
+
+
+      console.log(
+        "🗑️ Removed User:",
+        userId
+      );
+
+
+      break;
+
+    }
+
+  }
+
 };
 
-export const removeActiveChat = (userId) => {
-  activeChats.delete(userId);
+
+
+
+// ==============================
+// GET ONLINE USERS
+// ==============================
+
+export const getOnlineUsers =
+async()=>{
+
+
+  const users =
+    await redisClient.hGetAll(
+      ONLINE_USERS_KEY
+    );
+
+
+
+  return Object.entries(users)
+  .map(
+    ([userId,data])=>{
+
+
+      const user =
+        JSON.parse(data);
+
+
+
+      return {
+
+        userId,
+
+        socketId:
+          user.socketId,
+
+        joinTime:
+          user.joinTime,
+
+        name:
+          user.name
+
+      };
+
+
+    }
+  );
+
+
 };
 
-export const getActiveChat = (userId) => {
-  return activeChats.get(userId);
+
+
+
+// ==============================
+// ACTIVE CHAT
+// ==============================
+
+
+export const setActiveChat =
+async(
+ userId,
+ chatUserId
+)=>{
+
+
+ await redisClient.hSet(
+
+   ACTIVE_CHATS_KEY,
+
+   userId,
+
+   chatUserId
+
+ );
+
+
+};
+
+
+
+
+
+export const removeActiveChat =
+async(
+ userId
+)=>{
+
+
+ await redisClient.hDel(
+
+   ACTIVE_CHATS_KEY,
+
+   userId
+
+ );
+
+
+};
+
+
+
+
+
+export const getActiveChat =
+async(
+ userId
+)=>{
+
+
+ return await redisClient.hGet(
+
+   ACTIVE_CHATS_KEY,
+
+   userId
+
+ );
+
+
 };
