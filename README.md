@@ -122,3 +122,15 @@ The main objectives of this research implementation are:
 
 The system follows an API Gateway based microservices architecture.
 
+
+
+                React Frontend
+                     |
+                     |
+                     |
+              API Gateway Service
+                     |
+    -------------------------------------
+    |              |              |
+    |              |              |
+    ▼              ▼              ▼
